@@ -1,0 +1,69 @@
+package controlador;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import modelo.Persona;
+import repository.PersonaRepository;
+
+@RestController
+@RequestMapping("/personas")
+public class PersonaControlador {
+	  
+	@Autowired
+	PersonaRepository personaRepository;
+	
+	@GetMapping("/personas")
+	  public ResponseEntity<List<Persona>> getAllPersona(@RequestParam(required = false) String perfil) {
+	    try {
+	      List<Persona> persona = new ArrayList<Persona>();
+
+	      if (perfil == null)
+	        personaRepository.findAll().forEach(persona::add);
+	      else
+	        personaRepository.findByPerfilContaining(perfil).forEach(persona::add);
+
+	      if (persona.isEmpty()) {
+	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	      }
+
+	      return new ResponseEntity<>(persona, HttpStatus.OK);
+	    } catch (Exception e) {
+	      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	  }
+	
+	@GetMapping("/personas/{id}")
+	  public ResponseEntity<Persona> getPersonaById(@PathVariable("id") long id) {
+	    Optional<Persona> personaData = personaRepository.findById(id);
+
+	    if (personaData.isPresent()) {
+	      return new ResponseEntity<>(personaData.get(), HttpStatus.OK);
+	    } else {
+	      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	  }
+	
+	@PostMapping("/personas")
+	  public ResponseEntity<Persona> createTutorial(@RequestBody Persona persona) {
+	    try {
+	      Persona _persona = tutorialRepository
+	          .save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
+	      return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
+	    } catch (Exception e) {
+	      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	  }
+}
